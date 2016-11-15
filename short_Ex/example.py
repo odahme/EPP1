@@ -5,6 +5,7 @@ from Plotter import plotVar, plotVarNorm, plotShapes
 
 ### Instantiation of an object of kind MyAnalysis for each single sample
 TT = MyAnalysis("ttbar")
+
 TT.processEvents()
 
 DY = MyAnalysis("dy")
@@ -41,6 +42,6 @@ for v in vars:
     print "Variable: ", v
     ### plotShapes (variable, samples,logScale )
     plotShapes(v, samples,  True)
+    print "oben"
     ### plotVar(variable, samples,isData, logScale )
     plotVar(v, samples,  True, True)
-

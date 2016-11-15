@@ -4,14 +4,15 @@ from Samples import samp
 
 ROOT.gROOT.Reset();
 ROOT.gROOT.SetStyle('Plain')
-ROOT.gStyle.SetPalette(1)
-ROOT.gStyle.SetOptStat(0)
+#ROOT.gStyle.SetPalette(1)
+#ROOT.gStyle.SetOptStat(0)
 ROOT.gROOT.SetBatch()        # don't pop up canvases
 ROOT.TH1.SetDefaultSumw2()
 ROOT.TH1.AddDirectory(False)
 
+
 def setStyle(histo, color, style = 0, fill = 0):
-    
+
     histo.GetXaxis().SetLabelFont(42);
     histo.GetYaxis().SetLabelFont(42);
     histo.GetXaxis().SetTitleFont(42);
@@ -26,7 +27,7 @@ def setStyle(histo, color, style = 0, fill = 0):
     histo.SetLineStyle(style)
     histo.SetFillColor(color)
     histo.SetFillStyle(fill)
-    if(fill == 0): 
+    if(fill == 0):
         histo.SetMarkerStyle(23)
         histo.SetMarkerSize(1.1)
     nEvts = (histo.GetXaxis().GetXmax() - histo.GetXaxis().GetXmin()) / histo.GetNbinsX()
@@ -42,12 +43,12 @@ def setStyleStack(hs, options = ""):
     hs.GetHistogram().GetYaxis().SetTitleOffset(1.);
     hs.GetHistogram().SetTitleFont(42);
     hs.GetHistogram().SetTitle("");
-    
+
     hs.GetHistogram().GetXaxis().SetLabelSize(0.05);
     hs.GetHistogram().GetYaxis().SetLabelSize(0.05);
     hs.GetHistogram().GetXaxis().SetTitleSize(0.06);
     hs.GetHistogram().GetYaxis().SetTitleSize(0.06);
-    
+
     nEvts = (hs.GetHistogram().GetXaxis().GetXmax() - hs.GetHistogram().GetXaxis().GetXmin()) / hs.GetHistogram().GetNbinsX()
     hs.GetHistogram().GetYaxis().SetTitle("Number of events / "+ str.format("{0:.2f}", nEvts) );
 
@@ -56,14 +57,14 @@ def setStyleLegend(leg):
         leg.SetFillColor(0)
         leg.SetTextSize(0.045)
         leg.SetTextFont(42)
-    
+
 def getStack(var, samples, excludeSig = False):
     hs = ROOT.THStack(var, "")
     leg = ROOT.TLegend(0.47, 0.65, 0.89, 0.89)
     setStyleLegend(leg)
-    
+
     for s in samples:
-        if not os.path.exists( s + "_histos.root"): 
+        if not os.path.exists( s + "_histos.root"):
             print "File "+s+"_histos.root does not exist. Please, check to have processed the corresponding sample"
             continue
         else:
@@ -82,10 +83,10 @@ def plotVar(var, samples,isData = False, logScale = False ):
     hs = getStack(var, samples)[0]
     leg = getStack(var, samples)[1]
     hs.Draw()
-    ### Superimposing signal events (ttbar) to visualise its shape 
-    if not os.path.exists( "ttbar_histos.root"): 
+    ### Superimposing signal events (ttbar) to visualise its shape
+    if not os.path.exists( "ttbar_histos.root"):
         print "File ttbar_histos.root does not exist. Please, check to have processed the corresponding sample"
-    else:            
+    else:
         f = ROOT.TFile("ttbar_histos.root")
         h = f.Get(var)
         setStyle(h, samp["ttbar"], 0, 0)
@@ -95,9 +96,9 @@ def plotVar(var, samples,isData = False, logScale = False ):
         leg.AddEntry(h, "ttbar", "L")
 
     if(isData):
-        if not os.path.exists( "data_histos.root"): 
+        if not os.path.exists( "data_histos.root"):
             print "File data_histos.root does not exist. Please, check to have processed the corresponding sample"
-        else:            
+        else:
             f = ROOT.TFile("data_histos.root")
             h = f.Get(var)
             setStyle(h, ROOT.kBlack, 0, 0)
@@ -114,12 +115,12 @@ def plotVarNorm(var, samples, logScale = False):
     c = ROOT.TCanvas()
     c.cd()
     if(logScale): c.SetLogy()
-    
+
     leg = ROOT.TLegend(0.47, 0.65, 0.89, 0.89)
     setStyleLegend(leg)
 
     for s in samples:
-        if not os.path.exists( s + "_histos.root"): 
+        if not os.path.exists( s + "_histos.root"):
             print "File "+s+"_histos.root does not exist. Please, check to have processed the corresponding sample"
             continue
         else:
@@ -139,7 +140,9 @@ def plotShapes(var, samples, logScale = False):
     c = ROOT.TCanvas()
     c.cd()
     if(logScale): c.SetLogy()
+    print "oben"
     hs = getStack(var, samples, True)[0]
+    print "unten"
     leg = ROOT.TLegend(0.47, 0.65, 0.89, 0.89)
     setStyleLegend(leg)
 
@@ -149,8 +152,8 @@ def plotShapes(var, samples, logScale = False):
     h_bkg.SetLineWidth(2)
     h_bkg.Draw("hist")
     leg.AddEntry(h_bkg, "Background","l")
-    
-    if not os.path.exists( "ttbar_histos.root"): 
+
+    if not os.path.exists( "ttbar_histos.root"):
         print "File ttbar_histos.root does not exist. Please, check to have processed the corresponding sample"
 
     else:
@@ -166,4 +169,3 @@ def plotShapes(var, samples, logScale = False):
     leg.Draw("SAME")
     #    if(logScale): c.SetLogy()
     c.SaveAs(var + "_Shape_MC.pdf")
-
