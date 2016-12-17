@@ -1,6 +1,7 @@
 import ROOT
 import copy
 from Samples import samp
+from pylab import sqrt
 
 class MyAnalysis(object):
 
@@ -23,6 +24,8 @@ class MyAnalysis(object):
         self._tree = tree
         self.nEvents = self._tree.GetEntries()
         print "Number of entries for " + self.sample + ": " + str(self.nEvents)
+        self.nTrig = 0
+        self.nAcc = 0
 
         ### Book histograms
         self.bookHistos()
@@ -70,6 +73,10 @@ class MyAnalysis(object):
         h_NBtag.SetXTitle("Number of B tagged jets")
         self.histograms["NBtag"] = h_NBtag
 
+        h_invM = ROOT.TH1F("inv_m","invariant mass",50,0,500)
+        h_invM.SetXTitle("invariant mass")
+        self.histograms["inv_m"] = h_invM
+
 
     def saveHistos(self):
         outfilename = self.sample + "_histos.root"
@@ -88,20 +95,73 @@ class MyAnalysis(object):
         tree.GetEntry(entry)
         w = tree.EventWeight
 
+        particle = "W"
+
+        LorentzSumHad = ROOT.TLorentzVector()
+        LorentzSumLep = ROOT.TLorentzVector()
+
+        ### Jet selection
+        nJet = 0
+        nbtag = 0
+        b_ind1 = -1
+        b_ind2 = -1
+        light_ind1 = -1
+        light_ind2 = -1
+        if(particle == "W"):
+            nJet = 3
+        if(particle == "top"):
+
+        nJ = tree.NJet == nJet
+
+#        ### b-tagged Jets
+#        ### jet is b-tagged if Jet_btag > 2.0
+#        btag = 2.0
+#
+#        for m in tree.Jet_btag:
+#            if(m > btag):
+#                nbtag+=1
+        if(particle == "W"):
+            nB = nbtag >= 1
+        if(particle == "top"):
+            nB = nbtag == 2
+#
+
         ### Muon selection - Select events with at least 1 isolated muon
         ### with pt>25 GeV to match trigger requirements
         muonPtCut = 25.
         muonRelIsoCut = 0.05
         nIsoMu = 0
 
+        isoMuon = ROOT.TLorentzVector()
         for m in xrange(tree.NMuon):
             muon =ROOT.TLorentzVector(tree.Muon_Px[m],tree.Muon_Py[m],tree.Muon_Pz[m],tree.Muon_E[m])
-            self.histograms["Muon_Iso"].Fill(tree.Muon_Iso[m], w)
             if(muon.Pt()>muonPtCut and (tree.Muon_Iso[m]/muon.Pt()) < muonRelIsoCut):
                 nIsoMu += 1
-            if(nIsoMu>0): self.histograms["Muon_Pt"].Fill(muon.Pt(), w)
+                if(isoMuon.Pt() < muon.Pt()):
+                    isoMuon = muon
+        LMuon = ROOT.TLorentzVector()
+        LMuon.SetXYZM(isoMuon.Px(),isoMuon.Py(),0,isoMuon.M())
+        LorentzSumLep += LMuon #adding muon with highest p_t
+        isoMu = nIsoMu == 1
 
-        self.histograms["NIsoMu"].Fill(nIsoMu, w)
+        LTraMis = ROOT.TLorentzVector()
+        LTraMis.SetXYZM(tree.MET_px,tree.MET_py,0,0)
+        LorentzSumLep += LTraMis #add Neutrino
+
+        ###trigger selection
+        trig = tree.triggerIsoMu24
+
+
+        ### final apllying all cuts
+        if(nJ and nB and isoMu):
+            self.histograms["NJet"].Fill(tree.NJet,w)
+            self.histograms["NIsoMu"].Fill(nIsoMu,w)
+            self.histograms["NBtag"].Fill(nbtag,w)
+            self.histograms["inv_m"].Fill(LorentzSumHad.M(),w)
+            self.nAcc += 1
+
+        if trig :
+            self.nTrig +=1
 
 
 
@@ -110,5 +170,7 @@ class MyAnalysis(object):
         nevts = self.nEvents
         for i in xrange(nevts):
             self.processEvent(i)
+            if i%50000 == 0:
+                print i," of ",nevts," processed"
 
         self.saveHistos()
