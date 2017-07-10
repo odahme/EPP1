@@ -1,0 +1,377 @@
+\documentclass[10pt]{article}
+
+%% Text-Encoding festlegen. Mit utf8 oder utf8x funktionieren Umlaute wie gewohnt.
+%% (mit Bibtex funktioniert nur utf8)
+\usepackage[utf8x]{inputenc}
+
+%% Sprachdatei für Trennregeln, Datum-Format und ähnliches festlegen
+%\usepackage[german]{babel}  % nötig für Umlaute
+ \usepackage[english]{babel}
+
+%% optimiert das typographische Erscheinungsbild
+\usepackage{microtype}
+
+%% erlaubt Listen einfacher zu formatieren (bietet nosep für kompakte Listen)
+\usepackage{enumitem}
+%% erlaubt hübsche Tabellen über mehrere Seiten, beinhaltet booktabs (\toprule, \midrule, ...)
+\usepackage{ctable}
+%% ermöglicht farbigen Text ({\color{red} ...})
+\usepackage{xcolor}
+
+%% erweiterte Funktionalität für Formeln (Pakete der American Mathematical Society)
+\usepackage{amsfonts,amsmath,amsthm,amssymb}
+
+%% vordefinierte Einheiten, einfaches Angeben von Einheiten (\SI{8 \pm 1}{cm})
+%%   die Unsicherheit soll mit +- abgetrennt werden
+\usepackage[separate-uncertainty]{siunitx}
+\sisetup{
+    range-units = single,       % \SIrange soll die Einheit nur einmal anzeigen
+    list-units  = repeat,       % \SIlist soll die Einheit wiederholen
+}
+%% bei siuntix funktioniert babel leider nicht
+%% für englische Dokumente sollten diese Zeilen auskommentiert werden.
+%\sisetup{
+%    range-phrase         = { bis },
+%    list-final-separator = { und },
+%    list-pair-separator  = { und }, % an Uni noch nicht verfügbar
+%}
+
+%% erlaubt es Bilddateien einzubinden
+%% (ctable graphicx intern auch. Trotzdem ist es sinnvoll graphicx expilizt zu laden.
+%%  Sonst entstehen schwehr verständliche Fehler, wenn ctable entfernt wird)
+\usepackage{graphicx}
+%% ermöglicht Bilder und Tabellen am eingegebenen Ort zu platzieren ([H])
+\usepackage{float}
+%% ermöglicht Unter-Bilder in einer figure-Umgebung
+\usepackage{subfig}
+%% Grafik-Dateien werden in den folgenden Ordnern gesucht
+\graphicspath{{img/}}
+%% Grafikdateien haben die folgenden Endungen (höchste Priorität zu erst)
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+%% Vertikaler Abstand zwischen Absätzen, Beginn eines Absatzes nicht einrücken
+\usepackage{parskip}
+% \setlength{\parskip}{0.6em}   % Vertikaler Abstand zwischen Absätzen anpassen
+% \setlength{\parindent}{0em}   % Einrück-Abstand anpassen
+
+%% zeige Labels im Seitenrand. Dies ist praktisch um Verweise zu kontrollieren
+\usepackage[final]{showkeys} % die Option 'final' deaktiviert die Ausgabe von showkeys
+
+%% Seiten-Layout einstellen
+\usepackage[
+ a4paper,
+ total={16cm,26cm},          % Breite und Höhe des Inhalt-Bereichs
+ top=20mm, left=30mm,        % Ränder oben und links
+ headsep=10mm,               % Abstand des unteren Rands der Kopfzeile vom oberen Rand des Inhalts
+ footskip=10mm               % Abstand des unteren des Inhalts zum oberen Rand der Fusszeile
+]{geometry}
+
+%% Ermöglicht Links im PDF
+%%   sollte möglichst spät in der Präambel geladen werden
+\usepackage[
+ pdftex,                        % wir verwenden pdftex/pdflatex
+ bookmarks=true,                % wir wollen auch im PDF-Reader ein Inhaltsverzeichnis
+ bookmarksdepth=3,              % das Inhaltsverzeichnis soll 3 Tiefen enthalten
+ colorlinks=true,               % Linktexte sollen Farbig sein
+ linkcolor=black,               % Links innerhalb des Dokuments bleiben schwarz
+ citecolor=black,               % Links zu Quellenangaben bleiben ebenfalls schwarz
+ urlcolor=blue,                 % URL-Linktexte sollen blau dargestellt werden
+%  pdfborder={0 0 0}              % Links im PDF erhalten keinen Rahmen, nur nötig wenn colorlinks=false
+]{hyperref}
+
+%% definiert \cref: Referenzen mit korrekter Bezeichnung (z.B. "Abbildung 1")
+%%   die Nummer alleine ist weiter mittels \ref verfügbar
+%% muss NACH 'hyperref' geladen werden
+%\usepackage[german]{cleveref}
+ \usepackage[english, capitalise]{cleveref}
+
+
+%% Angaben für \maketitle
+\title{Measuring of the invariant top mass}
+\author{Oliver Dahme}
+% \date{7. Mai 2013}             % ohne Angabe wird das heutig Datum verwendet
+
+%% Angaben für die PDF-Eigenschaften
+\makeatletter
+\hypersetup{
+  pdfauthor = {\@author},
+  pdftitle = {\@title},
+}
+\makeatother
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The top quark mass was measured on a small dataset of the CMS detector at CERN. Therfore a selection of the data was performed and tested by a Monte Carlo (MC) simulation. First the cross section was measured then the Z-boson mass and the W-boson mass. At the end the top mass was measured out of the hadronic part of the decay and a second measuerement out of the semi-leptonic part of the decay.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+To measure the mass of the top quark a selection has been performed to selected events of the form:
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.45\textwidth]{{{top_decay}}}
+\caption{Hadronic and Semileptonic decay of a top, anti top pair}
+\label{fig:top}
+\end{figure}
+In the following plots one can see the Number of Jets, the Number of b tagged jets and the missing transverse energy distribution bevor the selection and after. \\
+An event is accepted if:
+\begin{enumerate}
+  \item It has 4 Jets in the final state
+  \item It has at least one isolated muon in the final state
+  \item It has at least two b-tagged jets
+\end{enumerate}
+This selection leads to the following numbers:
+\begin{table}[tph]
+\centering
+\begin{tabular}{l|r|r}
+\toprule
+Name & Value & Error\\
+\midrule
+Total number of MC simulated events & 240601 & 490 \\
+Number of MC triggerd events & 208175 & 456  \\
+Total number of MC simulated $t \bar{t}$ events & 36941 & 192\\
+Number of MC accepted $t \bar{t}$ events & 506 & 23\\
+Number of expected $t \bar{t}$-events in Data & 6429 & 80 \\
+Number of accepted events in Data & 75 & 9 \\
+\bottomrule
+\end{tabular}
+\caption{Summary of number of events}
+\label{tab:numbers}
+\end{table}
+
+
+
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{NJet_ini}}}
+\caption{Number of jets before selection}
+\label{fig:njet_i}
+\end{figure}
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{NJet_final}}}
+\caption{Number of jets after selection}
+\label{fig:njet_f}
+\end{figure}
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{NbJet_ini}}}
+\caption{Number of b-jets before selection}
+\label{fig:nbjet_i}
+\end{figure}
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{NbJet_final}}}
+\caption{Number of b-jets after selection}
+\label{fig:nbjet_f}
+\end{figure}
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{met_ini}}}
+\caption{Missing transverse energy distribution before selection}
+\label{fig:met_i}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{met_final}}}
+\caption{Missing transverse energy distribution after selection}
+\label{fig:met_f}
+\end{figure}
+
+\section{Cross section}
+In this section the cross section for $\sigma_{t \bar{t}}$ at 7 TeV is calculated:
+\begin{align}
+  \sigma_{t \bar{t}} = \frac{N}{\epsilon_{trigger} \cdot L \cdot A_{t \bar{t}}}
+\end{align}
+where $N$ is number of accepted events in the Data, $\epsilon_{trigger}$ is the trigger efficiency, $L$ is the luminosity and $A_{t \bar{t}}$ the acceptenace rate. \\
+To get the trigger effiency just MC was used. It is the quotient between the number of, in the MC as triggerd marked events and the total number of events:
+\begin{align}
+  \epsilon_{trigger} = \frac{N_{triggerd}}{N_{total}} = 0.86 \pm 0.09
+\end{align}
+To get the acceptance rate for $t \bar{t}$ events just MC was used. It is the quotient between  the number of selected $t \bar{t}$ events and the total number of simulated $t \bar{t}$ events:
+\begin{align}
+  A_{t \bar{t}} = \frac{N_{selected}}{N_{total}} = 0.0137 \pm 0.0006
+\end{align}
+The luminosity is given by the detector:
+\begin{align}
+  L = 50 \pm 5 \text{ fb$^{-1}$}
+\end{align}
+Putting everything together one gets the following cross section:
+\begin{align}
+  \sigma_{t \bar{t}} = 127 \pm 20 \text{ fb}
+\end{align}
+That is confirms the thoretical prediction:
+\begin{align}
+  \sigma_{t \bar{t}}^{theory} = 167^{+17}_{-18} \text{ fb}
+\end{align}
+
+\section{Z-mass}
+To select events with a Z, two isolated muons are required. After selection a Breit-Wigner fit is performed to measure the Z-mass.
+\begin{align}
+  Z_{mass} = 90.9 \pm 3.7 \text{ GeV}
+\end{align}
+
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{Z_mass_fit}}}
+\caption{Breit Wigner fit over the invariant mass of two isolated muons. The peak is near the Z-mass.}
+\label{fig:Z_mass_fit}
+\end{figure}
+
+In addition a 2D likelihood-scan of the signal strength and the mass of the Z has been performed. The signal strength is equal to the measured cross section devided by the theoretical cross section from the MC simulation. In the MC simulation a $M_Z = 91.188 \text{ GeV}$ had been assumed.
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{contur_plot_Z}}}
+\caption{2D likehood-scan of the singal strength vs mass for the Z mass}
+\label{fig:Z_mass_con}
+\end{figure}
+
+
+\section{W-mass}
+From the selection for top mass events the W mass is calculated by taking the invariant mass of the isolated muon together with the missing transvers energy:
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{W_mass_fit}}}
+\caption{Breit Wigner fit over the invariant mass of the isolated muon and the missing transverse energy}
+\label{fig:W_mass_fit}
+\end{figure}
+The Breit-Wigner fit leads to:
+\begin{align}
+  m_W = 83 \pm 52 \text{ GeV}
+\end{align}
+
+\section{Top-mass}
+After slection is apllied, the two light jets together with the nearest b-jet give the invaraint mass of the top.
+
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{t_hadron_mass}}}
+\caption{Histogram of the ivariant mass of the two light jets together with the nearest b-jet}
+\label{fig:top_had}
+\end{figure}
+The fit leads to the following mass at one $\sigma$ confidence level:
+\begin{align}
+  m_{t \bar{t}}^{had} = 172_{-24}^{+60} \text{ GeV}
+\end{align}
+On the other hand there is the ivaraint mass of the semileptonic decay. The invaraint mass of the muon and the nearest b-jet are added up together with the missing transverse energy:
+\begin{figure}[H]
+\centering
+%% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+%% Dateinamen umgehen kann, die Punkte enthalten.
+\includegraphics[width=0.75\textwidth]{{{t_lep_m}}}
+\caption{Ivariant mass of the muon the nearest b-jet and the missing transverse energy}
+\label{fig:top_had}
+\end{figure}
+The fit leads to the following mass at one $\sigma$ confidence level:
+\begin{align}
+  m_{t \bar{t}}^{lep} = 184_{-48}^{+48} \text{ GeV}
+\end{align}
+
+%\section{Ein paar Tipps \& Tricks}
+%Ein nützlicher Tipp fürs schreiben von LaTeX Quelltext, ist es jeden
+%  Satz auf einer neuen Zeile zu beginnen.
+%Bei langen Zeilen kann der Satz umgebrochen und eingerückt werden.
+%Dies macht es einfach einen Satz aus dem PDF auch im Quelltext
+%  wiederzufinden.
+%Denn meist wirst du das PDF fürs Korrekturlesen verwenden.
+%
+%\subsection{Die wichtigsten Inhaltselemente}
+%Hier folgen nun verschiedene Inhaltselemente.
+%Als erstes zeigt \cref{eq:beispiel} den Satz des Pythagoras.
+%Wie man Formeln setzt, lernst du wohl am Besten mit Kiles
+%  umfangreicher Symboltabelle.
+%\begin{equation}
+%\label{eq:beispiel} a^2 + b^2 = c^2
+%\end{equation}
+%
+%Im zweiten Absatz dieses Abschnitts folgt nun eine Aufzählung.
+%Sie erklärt dir, was du machen musst, damit \cref{fig:beispiel}
+%kompiliert:
+%\begin{enumerate}[nosep]
+%\item Erstelle einen Unterordner \texttt{\color{red} img} (vgl. \texttt{graphicspath})
+%\item Lade das Beispielbild\\
+%  \url{http://www.physik.uzh.ch/~nchiapol/info1/res/iss+spaceshuttle.jpg}\\
+%  herunter und speichere es in diesen Ordner.
+%\end{enumerate}
+%
+%\begin{figure}[H]
+% \centering
+% %% Die dreifachen Klammern {{{ }}} sind nötig, damit Latex auch mit
+% %% Dateinamen umgehen kann, die Punkte enthalten.
+% \includegraphics[width=0.45\textwidth]{{{iss+spaceshuttle}}}
+% \caption{Das Spaceshuttel und die ISS}
+% \label{fig:beispiel}
+%\end{figure}
+%
+%Die Grösse des Bildes ist in unserem Fall in Bruchteilen der
+%  Textbreite angegeben.
+%Das ist oft die beste Art.
+%Sie könnte aber zum Beispiel mit \texttt{[width=8cm]} auch als
+%  \SI{8}{\centi\meter} angegeben werden.
+%
+%Mit den \SI{8}{cm} haben wir auch gleich gezeigt wie man mit \texttt{siunitx}
+%  verwendet.
+%Das Paket versteht auch Zahlen mit Fehlern wie \SI{60 \pm 5}{kg},
+%Wertebereiche wie \SIrange{5}{10}{\degreeCelsius} oder Listen \SIlist{1;2;3;4}{s}.
+%
+%Schliesslich sollten wir auch noch eine einfache Tabelle
+%  zu unserem Beispiel hinzufügen.
+%Wir erlauben \cref{tab:beispiel} aber selbst ihre Position zu wählen.
+%\begin{table}[tph]
+%\centering
+%\begin{tabular}{lc}
+%\toprule
+%Name & Wert\\
+%\midrule
+%eins & 1\\
+%zwei & 2\\
+%drei & 3\\
+%vier & 4\\
+%\bottomrule
+%\end{tabular}
+%\caption{Unsere Beispiel-Tabelle}
+%\label{tab:beispiel}
+%\end{table}
+%
+%\subsection*{Quellenangaben}
+%Der \texttt{*} macht dies zu einem unnummerierten Absatz.
+%Nun aber zu den versprochenen Quellenangaben.
+%Um zu zeigen, wie man in Latex Quellen zitieren kann,
+%  sei hier auf ein Hilfsmittel im Web verwiesen.
+%Immer wieder nützlich ist das Wiki-Book zu LaTex \cite{wikibook}.
+%Es ist sehr umfangreich und enthält viele nützliche Tipps.
+%
+%\begin{thebibliography}{100}
+%\addcontentsline{toc}{section}{Bibliography}
+%\bibitem{wikibook} LaTeX, \url{http://en.wikibooks.org/wiki/LaTeX}
+%\end{thebibliography}
+
+\end{document}

@@ -41,6 +41,14 @@ class MyAnalysis(object):
         h_nJet.SetXTitle("%# of jets")
         self.histograms["NJet"] = h_nJet
 
+        h_nbJet = ROOT.TH1F("NbJet","#of b-jets", 4, -0.5, 4.5)
+        h_nbJet.SetXTitle("%# of b-jets")
+        self.histograms["NbJet"] = h_nbJet
+
+        h_met = ROOT.TH1F("met","met distribution",100,0,200)
+        h_met.SetXTitle("missing energy")
+        self.histograms["met"] = h_met
+
         h_nJetFinal = ROOT.TH1F("NJetFinal","#of jets", 6, -0.5, 6.5)
         h_nJetFinal.SetXTitle("%# of jets")
         self.histograms["NJetFinal"] = h_nJetFinal
@@ -86,6 +94,34 @@ class MyAnalysis(object):
             h.Write()
         outfile.Close()
 
+    def cut_check(self, tree):
+        '''
+        Apply the different cuts here
+        Return: bool, True if event passes the checks
+
+        '''
+
+#        Check N_Jets ==4
+
+        if( tree.NJet !=4):
+            return False
+
+#        Check leptons =1
+        if( tree.NMuon!=1):
+            return False
+
+
+#        Check b_tags =2 (b_tag = sum of jets with btag>0)
+        btags = 0
+        for i in xrange(tree.NJet):
+            if(tree.Jet_btag[i]>0):
+                btags= btags +1
+
+        if(btags !=2):
+            return False
+
+        return True
+
     ### processEvent function implements the actions to perform on each event
     ### This is the place where to implement the analysis strategy: study of most sensitive variables
     ### and signal-like event selection
@@ -95,7 +131,7 @@ class MyAnalysis(object):
         tree.GetEntry(entry)
         w = tree.EventWeight
 
-        particle = "W"
+        particle = "top"
 
         LorentzSumHad = ROOT.TLorentzVector()
         LorentzSumLep = ROOT.TLorentzVector()
@@ -110,20 +146,19 @@ class MyAnalysis(object):
         if(particle == "W"):
             nJet = 3
         if(particle == "top"):
+            nJet = 4
 
-        nJ = tree.NJet == nJet
-
-#        ### b-tagged Jets
-#        ### jet is b-tagged if Jet_btag > 2.0
-#        btag = 2.0
-#
-#        for m in tree.Jet_btag:
-#            if(m > btag):
-#                nbtag+=1
+        nJ = tree.NJet >= nJet
+       ### b-tagged Jets
+       #jet is b-tagged if Jet_btag > 2.0
+        btag = 2.0
+        for m in tree.Jet_btag:
+            if(m > btag):
+                nbtag+=1
         if(particle == "W"):
-            nB = nbtag >= 1
+            nB= nbtag >= 1
         if(particle == "top"):
-            nB = nbtag == 2
+            nB = nbtag >= 2
 #
 
         ### Muon selection - Select events with at least 1 isolated muon
@@ -142,7 +177,7 @@ class MyAnalysis(object):
         LMuon = ROOT.TLorentzVector()
         LMuon.SetXYZM(isoMuon.Px(),isoMuon.Py(),0,isoMuon.M())
         LorentzSumLep += LMuon #adding muon with highest p_t
-        isoMu = nIsoMu == 1
+        isoMu = nIsoMu >= 1
 
         LTraMis = ROOT.TLorentzVector()
         LTraMis.SetXYZM(tree.MET_px,tree.MET_py,0,0)
@@ -153,24 +188,28 @@ class MyAnalysis(object):
 
 
         ### final apllying all cuts
-        if(nJ and nB and isoMu):
-            self.histograms["NJet"].Fill(tree.NJet,w)
-            self.histograms["NIsoMu"].Fill(nIsoMu,w)
-            self.histograms["NBtag"].Fill(nbtag,w)
-            self.histograms["inv_m"].Fill(LorentzSumHad.M(),w)
-            self.nAcc += 1
+        # if(nJ and nB and isoMu):
+        #     self.histograms["NJet"].Fill(tree.NJet,w)
+        #     self.histograms["NIsoMu"].Fill(nIsoMu,w)
+        #     self.histograms["NBtag"].Fill(nbtag,w)
+        #     self.histograms["inv_m"].Fill(LorentzSumHad.M(),w)
+        #     self.nAcc += 1
 
         if trig :
             self.nTrig +=1
-
-
+        ### comparison between simulion and data
+        if(self.cut_check(tree)):
+            self.histograms["NJet"].Fill(tree.NJet,w)
+            self.histograms["NbJet"].Fill(nbtag,w)
+            self.histograms["met"].Fill(LTraMis.Pt(),w)
+            self.nAcc += 1
 
     ### processEvents run the function processEvent on each event stored in the tree
     def processEvents(self):
         nevts = self.nEvents
         for i in xrange(nevts):
             self.processEvent(i)
-            if i%50000 == 0:
+            if i%50000 == 0 and i != 0:
                 print i," of ",nevts," processed"
 
         self.saveHistos()

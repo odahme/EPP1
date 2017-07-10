@@ -87,6 +87,8 @@ varias = ["t_hadron_mass","t_lep_m"]
 
 t_mass_in_MC = 172.44
 
+
+
 ### get trigger efficiency
 nTriggerd_err = sqrt(nTriggerd)
 nTotal_err = sqrt(nTotal)
@@ -109,6 +111,13 @@ nAccData_err = sqrt(nAccData)
 crosS_err = sqrt( (nAccData_err * (trigEff * lum * acRate))**2 + ( trigEff_err * nAccData/(trigEff**2 * lum * acRate))**2 + (lum_err * nAccData/(trigEff * lum**2 * acRate))**2 + (acRate_err * nAccData/(trigEff * lum * acRate**2))**2 )
 print "cross section tt = ",crosS," +- ",crosS_err
 print "theory = 167 +17 -18"
+
+print "N Total = ",nTotal, " +- ",sqrt(nTotal)
+print "N triggerd = ",nTriggerd, " +- ",sqrt(nTriggerd)
+print "N total tt = ",nTT, " +- ",sqrt(nTT)
+print "N accepted tt = ",nAccTT, " +- ",sqrt(nAccTT)
+print "N expected Data = ",Data.nEvents * acRate, " +- ",sqrt(Data.nEvents * acRate)
+print "N accepted Data = ",nAccData, " +- ", sqrt(nAccData)
 
 for var in varias:
     print

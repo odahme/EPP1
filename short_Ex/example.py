@@ -61,7 +61,7 @@ samples = ["qcd", "zz", "wz", "ww",  "single_top", "dy","wjets", "ttbar"]
 
 #samples = ["ttbar"]
 
-vars = ["NJet","NIsoMu","NBtag","inv_m"]
+vars = ["NJet","NbJet","met"]
 
 print "number of selected events in MC = ",nAccTT
 print "number of selected events in Data = ",nAccData
@@ -69,36 +69,40 @@ print "number of selected events in Data = ",nAccData
 for v in vars:
     print "Variable: ", v
     ### plotShapes (variable, samples,logScale )
-    plotShapes(v, samples,  False)
+    plotShapes(v, samples,  True)
     ### plotVar(variable, samples,isData, logScale )
-    plotVar(v, samples,  True, False)
-    
+    plotVar(v, samples,  True, True)
+
+
+
+
+
 #Breit-Wigner function
-def mybw(x,par):
-  arg1 = 14.0/22.0; # 2 over pi
-  arg2 = par[1]*par[1]*par[2]*par[2] #Gamma=par[1]  M=par[2]
-  arg3 = ((x[0]*x[0]) - (par[2]*par[2]))*((x[0]*x[0]) - (par[2]*par[2]))
-  arg4 = x[0]*x[0]*x[0]*x[0]*((par[1]*par[1])/(par[2]*par[2]))
-  return par[0]*arg1*arg2/(arg3 + arg4)
-
-
-func = TF1("mybw",mybw,0, 2000,3)
-func.SetParameter(0,1.0)   
-func.SetParName(0,"const")
-func.SetParameter(2,5.0)    
-func.SetParName(1,"sigma")
-func.SetParameter(1,95.0)    
-func.SetParName(2,"mean")    
-
-canvas = TCanvas("canvas","canvas",800,600)
-histo_m = getHisto("inv_m","ttbar")
-histo_m.Fit("mybw")
-histo_m.Draw()
-canvas.Update()
-canvas.SaveAs("top_mass_fit.pdf")
-
-
-
+# def mybw(x,par):
+#   arg1 = 14.0/22.0; # 2 over pi
+#   arg2 = par[1]*par[1]*par[2]*par[2] #Gamma=par[1]  M=par[2]
+#   arg3 = ((x[0]*x[0]) - (par[2]*par[2]))*((x[0]*x[0]) - (par[2]*par[2]))
+#   arg4 = x[0]*x[0]*x[0]*x[0]*((par[1]*par[1])/(par[2]*par[2]))
+#   return par[0]*arg1*arg2/(arg3 + arg4)
+#
+#
+# func = TF1("mybw",mybw,0, 2000,3)
+# func.SetParameter(0,1.0)
+# func.SetParName(0,"const")
+# func.SetParameter(2,5.0)
+# func.SetParName(1,"sigma")
+# func.SetParameter(1,95.0)
+# func.SetParName(2,"mean")
+#
+# canvas = TCanvas("canvas","canvas",800,600)
+# histo_m = getHisto("inv_m","ttbar")
+# histo_m.Fit("mybw")
+# histo_m.Draw()
+# canvas.Update()
+# canvas.SaveAs("top_mass_fit.pdf")
+#
+#
+#
 ### get trigger efficiency
 nTriggerd_err = sqrt(nTriggerd)
 nTotal_err = sqrt(nTotal)
@@ -116,11 +120,10 @@ print "accpetance = ",1.0 * nAccTT/nTT," +- ",acRate_err
 ##cross section tt
 lum = 50.
 lum_err = 0.1*50
-#crosS = nAccData/(trigEff * lum * acRate)
-#nAccData_err = sqrt(nAccData)
-#crosS_err = sqrt( (nAccData_err * (trigEff * lum * acRate))**2 + ( trigEff_err * nAccData/(trigEff**2 * lum * acRate))**2 + (lum_err * nAccData/(trigEff * lum**2 * acRate))**2 + (acRate_err * nAccData/(trigEff * lum * acRate**2))**2 )
-#print "cross section tt = ",crosS," +- ",crosS_err
+crosS = nAccData/(trigEff * lum * acRate)
+nAccData_err = sqrt(nAccData)
+crosS_err = sqrt( (nAccData_err * (trigEff * lum * acRate))**2 + ( trigEff_err * nAccData/(trigEff**2 * lum * acRate))**2 + (lum_err * nAccData/(trigEff * lum**2 * acRate))**2 + (acRate_err * nAccData/(trigEff * lum * acRate**2))**2 )
+print "cross section tt = ",crosS," +- ",crosS_err
 print "theory = 167 +17 -18"
 
-    
-
+print "number of expected events = ",acRate*Data.nEvents," +- ",acRate_err*Data.nEvents
